@@ -16,22 +16,16 @@ const ITEM_DB_CACHE_PATH = "./items.json";
 
 let saleCache: BasicSale[] = [];
 
-const connect = async () => {
+let itemData;
+
+
+const connectToDatabase = async () => {
     console.info("Connecting to mongo")
     await mongoose.connect(process.env.DB_URL);
     console.info("Connected!")
 }
 
-(async () => {
-    // download items.json
-    const rawDB = await axios.get(ITEMS_DB);
-    if (rawDB.data) {
-        await writeFile(ITEM_DB_CACHE_PATH, JSON.stringify(rawDB.data), 'utf-8');
-    }
-
-    const itemData = JSON.parse(await readFile(ITEM_DB_CACHE_PATH, "utf-8"));
-
-
+const connectWebsocket = () => {
     // open websocket
     const ws = new WebSocket(WS_ADDRESS);
 
@@ -42,7 +36,8 @@ const connect = async () => {
     });
 
     ws.on('close', () => {
-        console.info(`Connection closed for ${WS_ADDRESS}`)
+        console.info(`Connection closed for ${WS_ADDRESS}`);
+        connectWebsocket();
     });
 
     ws.on('message', (raw) => {
@@ -65,7 +60,10 @@ const connect = async () => {
             }
         }
     });
+}
 
+const startPushTask = () => {
+    console.info("Starting Push Task")
     setTimeout(async () => {
         console.info("Posting Data to DB")
         const docs = saleCache.map((sale) => {
@@ -78,10 +76,24 @@ const connect = async () => {
             }
         });
 
-        await connect();
+        await connectToDatabase();
         await SaleModel.bulkWrite(docs);
         console.info(`Wrote ${docs.length} new documents @ ${Date.now().toString()}`);
         saleCache = [];
 
     }, 1000 * 60 * 30)
+}
+
+(async () => {
+
+    // download items.json
+    const rawDB = await axios.get(ITEMS_DB);
+    if (rawDB.data) {
+        await writeFile(ITEM_DB_CACHE_PATH, JSON.stringify(rawDB.data), 'utf-8');
+    }
+
+    itemData = JSON.parse(await readFile(ITEM_DB_CACHE_PATH, "utf-8"));
+
+    connectWebsocket();
+    startPushTask();
 })();
