@@ -16,11 +16,13 @@ const ITEM_DB_CACHE_PATH = "./items.json";
 
 let saleCache: BasicSale[] = [];
 
-(async () => {
+const connect = async () => {
     console.info("Connecting to mongo")
     await mongoose.connect(process.env.DB_URL);
     console.info("Connected!")
+}
 
+(async () => {
     // download items.json
     const rawDB = await axios.get(ITEMS_DB);
     if (rawDB.data) {
@@ -77,6 +79,7 @@ let saleCache: BasicSale[] = [];
             }
         });
 
+        await connect();
         await SaleModel.bulkWrite(docs);
         console.info(`Wrote ${docs.length} new documents @ ${Date.now().toString()}`);
         saleCache = [];
