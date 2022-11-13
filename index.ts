@@ -78,9 +78,9 @@ let saleCache: BasicSale[] = [];
             }
         });
 
-        let result = await SaleModel.bulkWrite(docs);
-        console.info("SAVED");
+        await SaleModel.bulkWrite(docs);
+        console.info(`Wrote ${docs.length} new documents @ ${Date.now().toString()}`);
         saleCache = [];
 
-    }, 1000 * 5)
+    }, 1000 * 60 * 10)
 })();
