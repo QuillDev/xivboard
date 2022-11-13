@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
+    "scrape": "ts-node index.ts",
     "dev": "tsnd --respawn index.ts",
     "analyze-dev": "tsnd --respawn analyze.ts"
   },
