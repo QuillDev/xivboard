@@ -2,4 +2,5 @@
 .idea/
 node_modules/
 .env
-cache/
+cache/*
+!cache/items.json
