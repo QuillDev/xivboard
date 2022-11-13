@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "scrape": "ts-node index.ts",
-    "dev": "tsnd --respawn index.ts",
-    "analyze-dev": "tsnd --respawn analyze.ts"
+    "scrape": "ts-node ./src/actions/scrape.ts",
+    "cache": "ts-node ./src/actions/cache.ts",
+    "analyze": "ts-node ./src/actions/analyze.ts"
   },
   "author": "",
   "license": "ISC",

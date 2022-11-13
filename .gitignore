@@ -1,2 +1,5 @@
+.fleet/
+.idea/
 node_modules/
 .env
+cache/
