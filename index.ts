@@ -67,8 +67,7 @@ const connect = async () => {
     });
 
     setTimeout(async () => {
-
-
+        console.info("Posting Data to DB")
         const docs = saleCache.map((sale) => {
             return {
                 insertOne: {
