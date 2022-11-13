@@ -35,8 +35,8 @@ let saleCache: BasicSale[] = [];
 
     ws.on('open', () => {
         console.info(`Connection opened for ${WS_ADDRESS}`);
-        ws.send(serialize({event: "subscribe", channel: "sales/add"}));
-        ws.send(serialize({event: "subscribe", channel: "sales/remove"}));
+        ws.send(serialize({event: "subscribe", channel: "sales/add{world=74}"}));
+        ws.send(serialize({event: "subscribe", channel: "sales/remove{world=74}"}));
     });
 
     ws.on('close', () => {
@@ -59,7 +59,7 @@ let saleCache: BasicSale[] = [];
                     qty += sale.quantity;
                     total += sale.total;
                 }
-//                 console.info(`New Sale: ${itemName.en} (id: ${item}) x${qty} for ${total}gil`)
+                console.info(`New Sale: ${itemName.en} (id: ${item}) x${qty} for ${total}gil`)
             }
         }
     });
