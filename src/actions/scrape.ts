@@ -12,6 +12,7 @@ let saleCache: BasicSale[] = [];
 
 const connectWebsocket = () => {
 
+
     try {
         const ws = openMarketSocket();
 
@@ -45,7 +46,7 @@ const connectWebsocket = () => {
         });
     } catch (e) {
         console.error(e);
-        openMarketSocket();
+        connectWebsocket();
     }
 }
 
