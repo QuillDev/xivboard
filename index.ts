@@ -81,5 +81,5 @@ let saleCache: BasicSale[] = [];
         console.info(`Wrote ${docs.length} new documents @ ${Date.now().toString()}`);
         saleCache = [];
 
-    }, 1000 * 60 * 10)
+    }, 1000 * 60 * 3)
 })();
