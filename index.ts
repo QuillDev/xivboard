@@ -59,8 +59,7 @@ let saleCache: BasicSale[] = [];
                     qty += sale.quantity;
                     total += sale.total;
                 }
-
-                console.info(`New Sale: ${itemName.en} (id: ${item}) x${qty} for ${total}gil`)
+//                 console.info(`New Sale: ${itemName.en} (id: ${item}) x${qty} for ${total}gil`)
             }
         }
     });
