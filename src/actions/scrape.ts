@@ -11,43 +11,41 @@ let itemData;
 let saleCache: BasicSale[] = [];
 
 const connectWebsocket = () => {
+    const ws = openMarketSocket();
 
+    ws.on('open', () => {
+        ws.send(serialize({event: "subscribe", channel: "sales/add{world=74}"}));
+        ws.send(serialize({event: "subscribe", channel: "sales/remove{world=74}"}));
+    });
 
-    try {
-        const ws = openMarketSocket();
-
-        ws.on('open', () => {
-            ws.send(serialize({event: "subscribe", channel: "sales/add{world=74}"}));
-            ws.send(serialize({event: "subscribe", channel: "sales/remove{world=74}"}));
-        });
-
-        ws.on('close', () => {
-            connectWebsocket();
-        });
-
-        ws.on('message', (raw) => {
-            const data = deserialize(raw as ArrayBuffer | Buffer | ArrayBufferView) as WSEvent;
-            switch (data.event) {
-                case "sales/add": {
-                    const {item, world, sales}: SaleAdd = data as SaleAdd;
-
-                    const itemName = itemData[`${item}`];
-                    let qty = 0;
-                    let total = 0;
-                    for (const basicSale of sales) {
-                        const sale: Sale = {item, world, ...basicSale};
-                        saleCache.push(sale);
-                        qty += sale.quantity;
-                        total += sale.total;
-                    }
-                    console.info(`New Sale: ${itemName.en} (id: ${item}) x${qty} for ${total}gil`)
-                }
-            }
-        });
-    } catch (e) {
-        console.error(e);
+    ws.on('close', () => {
         connectWebsocket();
-    }
+    });
+
+    ws.on('message', (raw) => {
+        const data = deserialize(raw as ArrayBuffer | Buffer | ArrayBufferView) as WSEvent;
+        switch (data.event) {
+            case "sales/add": {
+                const {item, world, sales}: SaleAdd = data as SaleAdd;
+
+                const itemName = itemData[`${item}`];
+                let qty = 0;
+                let total = 0;
+                for (const basicSale of sales) {
+                    const sale: Sale = {item, world, ...basicSale};
+                    saleCache.push(sale);
+                    qty += sale.quantity;
+                    total += sale.total;
+                }
+                console.info(`New Sale: ${itemName.en} (id: ${item}) x${qty} for ${total}gil`)
+            }
+        }
+    });
+
+    ws.on('error', (err) => {
+        console.error(err);
+        connectWebsocket();
+    });
 }
 
 const startPushTask = () => {
@@ -72,8 +70,12 @@ const startPushTask = () => {
     }, 1000 * 60 * 30)
 }
 
-(async () => {
+const startScraping = async () => {
     itemData = await fetchItemData();
     connectWebsocket();
     startPushTask();
+}
+
+(async () => {
+    await startScraping();
 })();

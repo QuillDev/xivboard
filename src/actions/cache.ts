@@ -10,15 +10,16 @@ const FILE_NAME = "./cache/db.json";
 export const pullData = async () => {
     await connectMongo();
 
-    let sales = await SaleModel.find();
-
+    // get docs for the last week
+    const check = (Date.now() - 604800000) / 1000;
+    let sales = await SaleModel.find({timestamp: {$gte: check}});
+    console.info(`Loaded ${sales.length} documents.`)
 
     const totalQuantity = {};
     const totalSales = {};
     const totalPrice = {};
 
-
-    for (const {item, quantity, total} of sales) {
+    for (const {item, quantity, total, timestamp} of sales) {
         totalQuantity[item] = (totalQuantity[item] ?? 0) + quantity;
         totalSales[item] = (totalSales[item] ?? 0) + 1;
         totalPrice[item] = (totalPrice[item] ?? 0) + total;
@@ -39,5 +40,7 @@ export const pullData = async () => {
 (async () => {
 
     let itemData = await fetchItemData();
-    await pullData();
+    let response = await pullData();
+
+    console.info()
 })();

@@ -31,5 +31,5 @@ const mapToItemName = <V>(map: Map<string, V>): Map<string, V> => {
     let totalSalesMap = toSortedMap(totalSales, (obj, key) => obj[key] as number);
     let totalPriceMap = toSortedMap(totalPrice, (obj, key) => obj[key] as number);
 
-    console.info(mapToItemName(totalPriceMap));
+    console.info(mapToItemName(totalSalesMap));
 })();
