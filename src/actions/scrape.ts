@@ -43,6 +43,7 @@ const connectWebsocket = () => {
     });
 
     ws.on('error', (err) => {
+        console.info("Got Error");
         console.error(err);
         connectWebsocket();
     });
