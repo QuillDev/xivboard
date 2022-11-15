@@ -49,7 +49,7 @@ const connectWebsocket = () => {
                     qty += sale.quantity;
                     total += sale.total;
                 }
-                logger.info(`New Sale: ${itemName.en} (id: ${item}) x${qty} for ${total}gil`);
+                logger.info(`[${Date.now().toLocaleString()}] New Sale: ${itemName.en} (id: ${item}) x${qty} for ${total}gil`);
             }
         }
     });
@@ -79,7 +79,7 @@ const startPushTask = () => {
         logger.info(`Wrote ${docs.length} new documents @ ${Date.now().toLocaleString()}`)
         saleCache = [];
 
-    }, 1000 * 60 * 30)
+    }, 1000 * 60 * 3)
 }
 
 const startScraping = async () => {
