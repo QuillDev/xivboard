@@ -5,10 +5,22 @@ import {SaleModel} from "../../models/SaleModel";
 import {connectMongo} from "../util/database";
 import {openMarketSocket} from "../util/websocket";
 import {fetchItemData} from "../util/xivapi";
+import * as winston from "winston";
 
 
 let itemData;
 let saleCache: BasicSale[] = [];
+
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    defaultMeta: {service: 'user-service'},
+    transports: [
+        new winston.transports.File({filename: 'error.log', level: 'error'}),
+        new winston.transports.File({filename: 'combined.log'}),
+    ],
+});
+
 
 const connectWebsocket = () => {
     const ws = openMarketSocket();
@@ -37,22 +49,21 @@ const connectWebsocket = () => {
                     qty += sale.quantity;
                     total += sale.total;
                 }
-                console.info(`New Sale: ${itemName.en} (id: ${item}) x${qty} for ${total}gil`)
+                logger.info(`New Sale: ${itemName.en} (id: ${item}) x${qty} for ${total}gil`);
             }
         }
     });
 
     ws.on('error', (err) => {
-        console.info("Got Error");
-        console.error(err);
-        connectWebsocket();
+        logger.info("Got Error");
+        logger.error(err);
     });
 }
 
 const startPushTask = () => {
-    console.info("Starting Push Task")
+    logger.info("Starting Push Task")
     setTimeout(async () => {
-        console.info("Posting Data to DB")
+        logger.info("Posting data to DB");
         const docs = saleCache.map((sale) => {
             return {
                 insertOne: {
@@ -65,7 +76,7 @@ const startPushTask = () => {
 
         await connectMongo();
         await SaleModel.bulkWrite(docs);
-        console.info(`Wrote ${docs.length} new documents @ ${Date.now().toString()}`);
+        logger.info(`Wrote ${docs.length} new documents @ ${Date.now().toLocaleString()}`)
         saleCache = [];
 
     }, 1000 * 60 * 30)
