@@ -80,7 +80,7 @@ const startPushTask = () => {
 
         await connectMongo();
         await SaleModel.bulkWrite(docs);
-        logger.info(`Wrote ${docs.length} new documents @ ${Date.now().toLocaleString()}`)
+        logger.info(`Wrote ${docs.length} new documents`)
         saleCache = [];
 
     }, 1000 * 60 * 3)
