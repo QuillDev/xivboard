@@ -13,11 +13,11 @@ let saleCache: BasicSale[] = [];
 
 const logger = winston.createLogger({
     level: 'info',
-    format: winston.format.json(),
-    defaultMeta: {service: 'user-service'},
+    format: winston.format.combine(winston.format.json(), winston.format.timestamp()),
     transports: [
         new winston.transports.File({filename: 'error.log', level: 'error'}),
         new winston.transports.File({filename: 'combined.log'}),
+        new winston.transports.Console({format: winston.format.combine(winston.format.timestamp(), winston.format.simple())})
     ],
 });
 
@@ -26,11 +26,14 @@ const connectWebsocket = () => {
     const ws = openMarketSocket();
 
     ws.on('open', () => {
+        logger.info("Opened Websocket.");
+        ws.send(serialize({event: "unsubscribe", channel: "sales/add{world=74}"}));
         ws.send(serialize({event: "subscribe", channel: "sales/add{world=74}"}));
-        ws.send(serialize({event: "subscribe", channel: "sales/remove{world=74}"}));
     });
 
     ws.on('close', () => {
+        logger.info("Closed Websocket.");
+        ws.terminate();
         connectWebsocket();
     });
 
@@ -49,14 +52,15 @@ const connectWebsocket = () => {
                     qty += sale.quantity;
                     total += sale.total;
                 }
-                logger.info(`[${Date.now().toLocaleString()}] New Sale: ${itemName.en} (id: ${item}) x${qty} for ${total}gil`);
+                logger.info(`New Sale: ${itemName.en} (id: ${item}) x${qty} for ${total}gil`);
             }
         }
     });
 
     ws.on('error', (err) => {
-        logger.info("Got Error");
-        logger.error(err);
+        logger.error(err)
+        ws.terminate();
+        connectWebsocket();
     });
 }
 

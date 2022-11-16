@@ -6,3 +6,4 @@ node_modules/
 # ignore caches
 cache/*
 !cache/.gitkeep
+*.log
